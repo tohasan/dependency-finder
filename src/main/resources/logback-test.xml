@@ -14,9 +14,9 @@
         </encoder>
     </appender>
 
-    <logger name="ru.tohasan" level="INFO"/>
+    <logger name="ru.tohasan" level="debug"/>
 
-    <root level="INFO">
-        <appender-ref ref="FILE" />
+    <root level="debug">
+        <appender-ref ref="STDOUT" />
     </root>
 </configuration>

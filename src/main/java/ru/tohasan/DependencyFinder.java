@@ -66,7 +66,7 @@ public class DependencyFinder {
         // If artifact has no dependent then we suppose that it is final (deployed) module
         if (!hasDependent) {
             dependentFiles.add(dependentFile);
-            LOGGER.info("%sModule: %s.%s [%s]", indent, dependencyName, getPackaging(dependentFile), dependentFile.getAbsolutePath());
+            LOGGER.info(String.format("%sModule: %s.%s [%s]", indent, dependencyName, getPackaging(dependentFile), dependentFile.getAbsolutePath()));
         }
 
         LOGGER.info("{}DependencyFinder::findDependent finished...", indent);
