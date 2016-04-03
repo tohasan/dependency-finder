@@ -44,13 +44,15 @@ public class AppTest {
 
         app.run(new String[]{"--directory", directoryToTest.getPath(), "--search", "subModuleX1"});
 
-        assertEquals(6, output.size());
-        assertEquals("Dependents on subModuleX1:", output.get(0));
-        assertEquals("    Module: moduleA.war [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleA\\pom.xml]", output.get(1));
-        assertEquals("    Module: moduleB.ear [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleB\\pom.xml]", output.get(2));
-        assertEquals("", output.get(3));
-        assertEquals("Total count of processed files: 10", output.get(4));
-        assertTrue(output.get(5).startsWith("Total time:"));
+        assertArrayEquals(new String[]{
+                "Dependents on subModuleX1:",
+                "    Module: moduleA.war [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleA\\pom.xml]",
+                "    Module: moduleB.ear [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleB\\pom.xml]",
+                "    Module: subModuleA2.war [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleA\\subModuleA2\\pom.xml]",
+                "",
+                "Total count of processed files: 12",
+                output.get(output.size() - 1)
+        }, output.toArray());
     }
 
     @Test

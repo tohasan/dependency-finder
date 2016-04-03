@@ -9,9 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * App finds
@@ -62,8 +60,12 @@ public class App {
 
     /**
      * Method finds dependent modules on specified module in arguments.
+     *
+     * @param directoryName Full path to directory where need to find dependent modules.
+     * @param dependencyName Module name (artifact id) of direct or indirect dependency of modules.
+     * @return Returns set of modules (exclude duplicates) dependent on specified artifact.
      */
-    private List<File> findDependent(String directoryName, String dependencyName) {
+    private Set<File> findDependent(String directoryName, String dependencyName) {
         // Find all pom.xml files
         File dir = new File(directoryName);
         Collection<File> files = FileUtils.listFiles(
@@ -73,17 +75,23 @@ public class App {
         );
 
         DependencyFinder dependencyFinder = new DependencyFinder();
-        List<File> dependentFiles = dependencyFinder.findDependent(files, dependencyName);
+        Set<File> dependentFiles = dependencyFinder.findDependent(files, dependencyName);
 
         if (!dependentFiles.isEmpty()) {
             print(String.format("Dependents on %s:", dependencyName));
+            // Calculate module name for each dependent module
+            List<String> moduleNames = new ArrayList<>();
             for (File dependentFile : dependentFiles) {
-                print(String.format(
+                moduleNames.add(String.format(
                         "    Module: %s [%s]",
                         dependencyFinder.getModuleName(dependentFile),
                         dependentFile.getAbsolutePath()
                 ));
             }
+            // Sort module names in natural order
+            moduleNames.sort(Comparator.<String>naturalOrder());
+            // Display names of dependent modules
+            moduleNames.forEach(this::print);
         } else {
             print("There are no dependent modules on " + dependencyName);
         }

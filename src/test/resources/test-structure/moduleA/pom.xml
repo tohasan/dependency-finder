@@ -39,6 +39,12 @@
             <artifactId>subModuleA11</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>ru.tohasan</groupId>
+            <artifactId>subModuleA12</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -14,10 +14,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * author LehaSan
@@ -28,17 +25,30 @@ public class DependencyFinder {
 
     private static final int LEVEL_INITIAL = 0;
 
-    public List<File> findDependent(Collection<File> files, String dependencyName) {
-        List<File> dependentFiles = new ArrayList<>();
-        findDependent(files, dependencyName, LEVEL_INITIAL, null, dependentFiles);
+    /**
+     * Method finds modules dependent on specified artifact.
+     *
+     * @param poms Collection of pom.xml to find dependent modules.
+     * @param dependencyName Artifact id of dependency which modules must have.
+     * @return Returns set of modules (exclude duplicates) dependent on specified artifact.
+     */
+    public Set<File> findDependent(Collection<File> poms, String dependencyName) {
+        Set<File> dependentFiles = new HashSet<>();
+        findDependent(poms, dependencyName, LEVEL_INITIAL, null, dependentFiles);
         return dependentFiles;
     }
 
-    public String getModuleName(File file) {
-        return getArtifactId(file) + "." + getPackaging(file);
+    /**
+     * Method calculates name of module by pom.xml.
+     *
+     * @param pom pom.xml from which need to get module name.
+     * @return Returns module name.
+     */
+    public String getModuleName(File pom) {
+        return getArtifactId(pom) + "." + getPackaging(pom);
     }
 
-    private boolean findDependent(Collection<File> files, String dependencyName, int level, File dependentFile, List<File> dependentFiles) {
+    private boolean findDependent(Collection<File> poms, String dependencyName, int level, File dependentFile, Set<File> dependentFiles) {
         // Generate indent
         String indent = "";
         for (int i = 0; i < level; i++) {
@@ -50,7 +60,7 @@ public class DependencyFinder {
 
         // List found files
         boolean hasDependent = false;
-        for (File file : files) {
+        for (File file : poms) {
             LOGGER.info("{}Process file: {}", indent, file.getAbsoluteFile());
             // If file contains query string (name of dependency)
             // then check it is dependency instead of artifact name
@@ -58,7 +68,7 @@ public class DependencyFinder {
                 String artifactId = getArtifactId(file);
                 LOGGER.debug("{}  - Dependent file: {}", indent, file.getAbsolutePath());
                 LOGGER.debug("{}  - Artifact id to continue find dependent module: {}.{}", indent, artifactId, getPackaging(file));
-                findDependent(files, artifactId, subLevel, file, dependentFiles);
+                findDependent(poms, artifactId, subLevel, file, dependentFiles);
                 hasDependent = true;
             }
         }

@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>ru.tohasan</groupId>
-    <artifactId>subModuleA11</artifactId>
+    <artifactId>subModuleA12</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>subModuleA11</name>
+    <name>subModuleA12</name>
     <url>http://maven.apache.org</url>
 
     <properties>
