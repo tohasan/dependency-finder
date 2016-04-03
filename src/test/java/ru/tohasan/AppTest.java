@@ -7,9 +7,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * author LehaSan
@@ -23,7 +21,14 @@ public class AppTest {
 
         @Override
         protected void print(String message) {
+            super.print(message);
             output.add(message);
+        }
+
+        @Override
+        protected void printHelp() {
+            super.printHelp();
+            output.add("Utility usage");
         }
     };
 
@@ -37,13 +42,22 @@ public class AppTest {
         URL directoryToTest = AppTest.class.getClassLoader().getResource("test-structure");
         assertNotNull(directoryToTest);
 
-        app.findDependent(new String[]{directoryToTest.getPath(), "subModuleX1"});
+        app.run(new String[]{"--directory", directoryToTest.getPath(), "--search", "subModuleX1"});
 
-        assertEquals(5, output.size());
-        assertEquals("Dependents of subModuleX1:", output.get(0));
+        assertEquals(6, output.size());
+        assertEquals("Dependents on subModuleX1:", output.get(0));
         assertEquals("    Module: moduleA.war [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleA\\pom.xml]", output.get(1));
         assertEquals("    Module: moduleB.ear [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleB\\pom.xml]", output.get(2));
         assertEquals("", output.get(3));
-        assertTrue(output.get(4).startsWith("Total count of processed files: 10"));
+        assertEquals("Total count of processed files: 10", output.get(4));
+        assertTrue(output.get(5).startsWith("Total time:"));
+    }
+
+    @Test
+    public void helpShouldBeDisplayedIfThereAreNoArguments() throws Exception {
+        app.run(new String[]{});
+
+        assertEquals(1, output.size());
+        assertEquals("Utility usage", output.get(0));
     }
 }

@@ -2,11 +2,67 @@
 
 ## Description
 
-Console utility finds depenent modules for maven projects. You can find modules that depends on another module. For example, you can find war and ear that depends on some jar.
+Console utility finds depenent modules for maven projects. 
+You can find modules that depends on another module. 
+For example, you can find war and ear that depends on some jar.
+Assume we have project with structure presented below and you want to know which modules use example.jar
+
+```
+    /my-project
+        /common
+            /example
+                pom.xml <example.jar>
+            pom.xml
+        /moduleA
+            /moduleA1
+                /moduleA11
+                    pom.xml <has dependency: example.jar>
+                pom.xml
+            pom.xml <moduleA.war; has dependency: moduleA11.jar>
+        /moduleB
+            /moduleB1
+                pom.xml <moduleB1.jar; has dependency: example.jar>
+            /moduleB2
+                pom.xml <moduleB2.jar; has dependency: example.jar>
+            pom.xml <moduleB.war; has dependencies: moduleB1.jar, moduleB2.jar>
+        /moduleC
+            pom.xml <moduleC.war>
+```
+
+So using dependency finder you get following result:
+
+```
+   moduleA.war
+   moduleB.war
+```
+
+Dependency finder has found modules dependent on example.jar.
+
+## Requirements
+
+1. java 8
 
 ## Usage
 
-To be done
+```
+        java -jar df.jar --directory <path/to/directory> --search <dependency name>
+```
+
+## Options
+
+```    
+        -d,--directory <arg>   search dependent modules in pom.xml in this
+                               directory including subdirectories. For example,
+                               -d /opt/my-project
+        -s,--search <arg>      search modules that have this module as dependency
+                               (directly or indirectly). For example, -s modBar
+```                            
+
+## Build
+
+```
+        mvn clean package
+```
 
 ## License 
 
