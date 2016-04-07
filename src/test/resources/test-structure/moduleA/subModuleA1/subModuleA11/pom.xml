@@ -42,6 +42,7 @@
     </dependencies>
 
     <build>
+        <finalName>sub-module-a11-${project.version}_${maven.build.timestamp}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

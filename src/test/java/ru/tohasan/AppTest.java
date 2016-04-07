@@ -68,7 +68,7 @@ public class AppTest {
         assertArrayEquals(new String[]{
                 "Dependents on subModuleX1:",
                 "    Module: moduleB.ear [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleB\\pom.xml]",
-                "    Module: subModuleA11.jar [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleA\\subModuleA1\\subModuleA11\\pom.xml]",
+                "    Module: sub-module-a11.jar [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleA\\subModuleA1\\subModuleA11\\pom.xml]",
                 "    Module: subModuleB1.jar [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleB\\subModuleB1\\pom.xml]",
                 "",
                 "Total count of processed files: 12",

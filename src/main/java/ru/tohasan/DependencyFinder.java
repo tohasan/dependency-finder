@@ -24,6 +24,9 @@ public class DependencyFinder {
     private static final Logger LOGGER = LoggerFactory.getLogger(DependencyFinder.class);
 
     private static final int LEVEL_INITIAL = 0;
+    private static final String FINAL_NAME_SUFFIX = "-${project.version}_${maven.build.timestamp}";
+    private static final String PROJECT_ARTIFACT_ID = "${project.artifactId}";
+    private static final String ARTIFACT_ID = "${artifactId}";
 
     /**
      * Method finds modules dependent on specified artifact.
@@ -47,7 +50,7 @@ public class DependencyFinder {
      * @return Returns module name.
      */
     public String getModuleName(File pom) {
-        return getArtifactId(pom) + "." + getPackaging(pom);
+        return getArtifactName(pom) + "." + getPackaging(pom);
     }
 
     private boolean findDependent(Collection<File> poms, String dependencyName, List<String> onlyModules, int level, File dependentFile, Set<File> dependentFiles) {
@@ -83,7 +86,7 @@ public class DependencyFinder {
             }
         } else {
             // Search dependence among specified modules
-            if (onlyModules.contains(dependencyName)) {
+            if (dependentFile != null && onlyModules.contains(getArtifactName(dependentFile))) {
                 addDependentFile(dependentFiles, dependentFile, indent, dependencyName);
             }
         }
@@ -122,6 +125,21 @@ public class DependencyFinder {
             LOGGER.debug(String.format("%s  - File has dependency", indent));
         }
         return hasDependency;
+    }
+
+    private String getArtifactName(File file) {
+        String artifactId = getArtifactId(file);
+        String finalName = (String) executeXPathExpression(file, "/project/build/finalName", XPathConstants.STRING);
+        if (!finalName.isEmpty()) {
+            // Remove suffix
+            finalName = finalName.replace(FINAL_NAME_SUFFIX, "");
+            // Replace variable of artifact id
+            finalName = finalName.replace(PROJECT_ARTIFACT_ID, artifactId);
+            finalName = finalName.replace(ARTIFACT_ID, artifactId);
+            return finalName;
+        } else {
+            return artifactId;
+        }
     }
 
     private String getArtifactId(File file) {
