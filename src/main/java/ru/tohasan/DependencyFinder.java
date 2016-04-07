@@ -30,11 +30,13 @@ public class DependencyFinder {
      *
      * @param poms Collection of pom.xml to find dependent modules.
      * @param dependencyName Artifact id of dependency which modules must have.
+     * @param onlyModules List of module names to search dependency among them. Can not be null.
+     *                    If empty then parameter is ignored.
      * @return Returns set of modules (exclude duplicates) dependent on specified artifact.
      */
-    public Set<File> findDependent(Collection<File> poms, String dependencyName) {
+    public Set<File> findDependent(Collection<File> poms, String dependencyName, List<String> onlyModules) {
         Set<File> dependentFiles = new HashSet<>();
-        findDependent(poms, dependencyName, LEVEL_INITIAL, null, dependentFiles);
+        findDependent(poms, dependencyName, onlyModules, LEVEL_INITIAL, null, dependentFiles);
         return dependentFiles;
     }
 
@@ -48,7 +50,7 @@ public class DependencyFinder {
         return getArtifactId(pom) + "." + getPackaging(pom);
     }
 
-    private boolean findDependent(Collection<File> poms, String dependencyName, int level, File dependentFile, Set<File> dependentFiles) {
+    private boolean findDependent(Collection<File> poms, String dependencyName, List<String> onlyModules, int level, File dependentFile, Set<File> dependentFiles) {
         // Generate indent
         String indent = "";
         for (int i = 0; i < level; i++) {
@@ -68,19 +70,31 @@ public class DependencyFinder {
                 String artifactId = getArtifactId(file);
                 LOGGER.debug("{}  - Dependent file: {}", indent, file.getAbsolutePath());
                 LOGGER.debug("{}  - Artifact id to continue find dependent module: {}.{}", indent, artifactId, getPackaging(file));
-                findDependent(poms, artifactId, subLevel, file, dependentFiles);
+                findDependent(poms, artifactId, onlyModules, subLevel, file, dependentFiles);
                 hasDependent = true;
             }
         }
 
-        // If artifact has no dependent then we suppose that it is final (deployed) module
-        if (!hasDependent) {
-            dependentFiles.add(dependentFile);
-            LOGGER.info(String.format("%sModule: %s.%s [%s]", indent, dependencyName, getPackaging(dependentFile), dependentFile.getAbsolutePath()));
+        // If list of specified modules is empty then check all modules in default way
+        if (onlyModules.isEmpty()) {
+            // If artifact has no dependent then we suppose that it is final (deployed) module
+            if (!hasDependent) {
+                addDependentFile(dependentFiles, dependentFile, indent, dependencyName);
+            }
+        } else {
+            // Search dependence among specified modules
+            if (onlyModules.contains(dependencyName)) {
+                addDependentFile(dependentFiles, dependentFile, indent, dependencyName);
+            }
         }
 
         LOGGER.info("{}DependencyFinder::findDependent finished...", indent);
         return hasDependent;
+    }
+
+    private void addDependentFile(Set<File> dependentFiles, File dependentFile, String indent, String dependencyName) {
+        dependentFiles.add(dependentFile);
+        LOGGER.info(String.format("%sModule: %s.%s [%s]", indent, dependencyName, getPackaging(dependentFile), dependentFile.getAbsolutePath()));
     }
 
     private boolean checkFileContainsDependencyName(File file, String dependencyName, String indent) {

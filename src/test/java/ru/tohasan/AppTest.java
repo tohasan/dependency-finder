@@ -56,6 +56,27 @@ public class AppTest {
     }
 
     @Test
+    public void itShouldBeModulesOnlyFromSpecified() throws Exception {
+        URL directoryToTest = AppTest.class.getClassLoader().getResource("test-structure");
+        assertNotNull(directoryToTest);
+
+        URL onlyModulesFromFile = AppTest.class.getClassLoader().getResource("only-from-modules.txt");
+        assertNotNull(onlyModulesFromFile);
+
+        app.run(new String[]{"--directory", directoryToTest.getPath(), "--search", "subModuleX1", "--only-from", onlyModulesFromFile.getPath()});
+
+        assertArrayEquals(new String[]{
+                "Dependents on subModuleX1:",
+                "    Module: moduleB.ear [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleB\\pom.xml]",
+                "    Module: subModuleA11.jar [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleA\\subModuleA1\\subModuleA11\\pom.xml]",
+                "    Module: subModuleB1.jar [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleB\\subModuleB1\\pom.xml]",
+                "",
+                "Total count of processed files: 12",
+                output.get(output.size() - 1)
+        }, output.toArray());
+    }
+
+    @Test
     public void helpShouldBeDisplayedIfThereAreNoArguments() throws Exception {
         app.run(new String[]{});
 

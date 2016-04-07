@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
 
@@ -22,6 +23,7 @@ public class App {
 
     private static final String OPT_DIRECTORY = "directory";
     private static final String OPT_SEARCH = "search";
+    private static final String OPT_ONLY_FROM = "only-from";
 
     private static final String POM_XML_PATTERN = "pom.xml";
 
@@ -50,8 +52,9 @@ public class App {
         // Get values of options
         String directoryName = commandLine.hasOption(OPT_DIRECTORY) ? commandLine.getOptionValue(OPT_DIRECTORY) : "";
         String dependencyName = commandLine.hasOption(OPT_SEARCH) ? commandLine.getOptionValue(OPT_SEARCH) : "";
+        String onlyModulesFromFile = commandLine.hasOption(OPT_ONLY_FROM) ? commandLine.getOptionValue(OPT_ONLY_FROM) : "";
 
-        this.findDependent(directoryName, dependencyName);
+        this.findDependent(directoryName, dependencyName, onlyModulesFromFile);
 
         long endTime = System.currentTimeMillis();
         print(String.format("Total time: %d ms", endTime - startTime));
@@ -63,9 +66,10 @@ public class App {
      *
      * @param directoryName Full path to directory where need to find dependent modules.
      * @param dependencyName Module name (artifact id) of direct or indirect dependency of modules.
+     * @param onlyModulesFromFile Path to file contains module names to search dependency among them.
      * @return Returns set of modules (exclude duplicates) dependent on specified artifact.
      */
-    private Set<File> findDependent(String directoryName, String dependencyName) {
+    private Set<File> findDependent(String directoryName, String dependencyName, String onlyModulesFromFile) {
         // Find all pom.xml files
         File dir = new File(directoryName);
         Collection<File> files = FileUtils.listFiles(
@@ -74,8 +78,15 @@ public class App {
                 TrueFileFilter.INSTANCE
         );
 
+        List<String> onlyModules = new ArrayList<>();
+        try {
+             onlyModules = FileUtils.readLines(new File(onlyModulesFromFile));
+        } catch (IOException e) {
+            LOGGER.error("Error: {}", e);
+        }
+
         DependencyFinder dependencyFinder = new DependencyFinder();
-        Set<File> dependentFiles = dependencyFinder.findDependent(files, dependencyName);
+        Set<File> dependentFiles = dependencyFinder.findDependent(files, dependencyName, onlyModules);
 
         if (!dependentFiles.isEmpty()) {
             print(String.format("Dependents on %s:", dependencyName));
@@ -145,9 +156,22 @@ public class App {
                     .numberOfArgs(1)
                     .build();
 
+            Option optOnlyFrom = Option.builder("o")
+                    .longOpt(OPT_ONLY_FROM)
+                    .desc("search modules that have this module as dependency only from modules specified in file. " +
+                            "Each module is defined on new line. " +
+                            "For example, -o /opt/only-from-modules.txt" +
+                            "Example of file:\n" +
+                            "moduleA\n" +
+                            "moduleB")
+                    .optionalArg(false)
+                    .numberOfArgs(1)
+                    .build();
+
             options = new Options();
             options.addOption(optDirectory);
             options.addOption(optDependencyName);
+            options.addOption(optOnlyFrom);
         }
         return options;
     }
