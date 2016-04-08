@@ -78,7 +78,7 @@ public class DependencyFinder {
         // If list of specified modules is empty then check all modules in default way
         if (onlyModules.isEmpty()) {
             // If artifact has no dependent then we suppose that it is final (deployed) module
-            if (!hasDependent) {
+            if (dependentFile != null && !hasDependent) {
                 addDependentFile(dependentFiles, dependentFile, indent, dependencyName);
             }
         } else {
