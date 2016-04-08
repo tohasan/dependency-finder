@@ -3,6 +3,7 @@ package ru.tohasan;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +40,11 @@ public class AppTest {
 
     @Test
     public void itShouldBeSeveralDependentModules() throws Exception {
+        URL baseDirectoryUrl = AppTest.class.getClassLoader().getResource("");
+        assertNotNull(baseDirectoryUrl);
+        File baseDir = new File(baseDirectoryUrl.getPath());
+        String basePath = baseDir.getAbsolutePath();
+
         URL directoryToTest = AppTest.class.getClassLoader().getResource("test-structure");
         assertNotNull(directoryToTest);
 
@@ -46,9 +52,9 @@ public class AppTest {
 
         assertArrayEquals(new String[]{
                 "Dependents on subModuleX1:",
-                "    Module: moduleA.war [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleA\\pom.xml]",
-                "    Module: moduleB.ear [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleB\\pom.xml]",
-                "    Module: subModuleA2.war [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleA\\subModuleA2\\pom.xml]",
+                "    Module: moduleA.war [" + basePath + "\\test-structure\\moduleA\\pom.xml]",
+                "    Module: moduleB.ear [" + basePath + "\\test-structure\\moduleB\\pom.xml]",
+                "    Module: subModuleA2.war [" + basePath + "\\test-structure\\moduleA\\subModuleA2\\pom.xml]",
                 "",
                 "Total count of processed files: 12",
                 output.get(output.size() - 1)
@@ -57,6 +63,11 @@ public class AppTest {
 
     @Test
     public void itShouldBeModulesOnlyFromSpecified() throws Exception {
+        URL baseDirectoryUrl = AppTest.class.getClassLoader().getResource("");
+        assertNotNull(baseDirectoryUrl);
+        File baseDir = new File(baseDirectoryUrl.getPath());
+        String basePath = baseDir.getAbsolutePath();
+
         URL directoryToTest = AppTest.class.getClassLoader().getResource("test-structure");
         assertNotNull(directoryToTest);
 
@@ -67,9 +78,9 @@ public class AppTest {
 
         assertArrayEquals(new String[]{
                 "Dependents on subModuleX1:",
-                "    Module: moduleB.ear [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleB\\pom.xml]",
-                "    Module: sub-module-a11.jar [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleA\\subModuleA1\\subModuleA11\\pom.xml]",
-                "    Module: subModuleB1.jar [E:\\projects\\dependency-finder\\target\\test-classes\\test-structure\\moduleB\\subModuleB1\\pom.xml]",
+                "    Module: moduleB.ear [" + basePath + "\\test-structure\\moduleB\\pom.xml]",
+                "    Module: sub-module-a11.jar [" + basePath + "\\test-structure\\moduleA\\subModuleA1\\subModuleA11\\pom.xml]",
+                "    Module: subModuleB1.jar [" + basePath + "\\test-structure\\moduleB\\subModuleB1\\pom.xml]",
                 "",
                 "Total count of processed files: 12",
                 output.get(output.size() - 1)
